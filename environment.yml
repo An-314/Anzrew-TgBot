@@ -1,0 +1,6 @@
+name: BOT
+channels:
+    - conda-forge
+dependencies:
+    - python-telegram-bot
+    - python-dotenv
