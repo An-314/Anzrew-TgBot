@@ -17,25 +17,33 @@ async def checkin(update: Update, context: CallbackContext) -> None:
     user_id = update.message.from_user.id
     today = datetime.date.today()
 
-    success = record_checkin(user_id, today.isoformat())
+    success, count = record_checkin(user_id, today.isoformat())
 
     if success:
-        await update.message.reply_text("成功🦌了！！！")
+        if count == 1:
+            await update.message.reply_text("成功🦌了！！！")
+        else:
+            await update.message.reply_text(f"今天您已经🦌过了！！！这是第{count}次。")
     else:
-        await update.message.reply_text("今天您已经🦌过了！！！")
+        await update.message.reply_text("小AnZZnA被🦌坏了！！")
 
 
 async def checkin_cancel(update: Update, context: CallbackContext) -> None:
     user_id = update.message.from_user.id
     today = datetime.date.today()
 
-    # 调用 remove_checkin 函数删除打卡记录
-    success = remove_checkin(user_id, today.isoformat())
+    success, count = remove_checkin(user_id, today.isoformat())
 
     if success:
-        await update.message.reply_text("你最好没🦌")
+        if count > 0:
+            await update.message.reply_text(f"成功删除🦌记录！剩余{count}次🦌")
+        else:
+            await update.message.reply_text("你最好没🦌")
     else:
-        await update.message.reply_text("恭喜！！没有🦌记录可以删除！")
+        if count == 0:
+            await update.message.reply_text("恭喜！！没有🦌记录可以删除！")
+        else:
+            await update.message.reply_text("小AnZZnA被🦌坏了！！")
 
 
 async def show_calendar(update: Update, context: CallbackContext) -> None:
@@ -67,10 +75,15 @@ async def show_calendar(update: Update, context: CallbackContext) -> None:
             if day == 0:
                 table.add_cell(row_num, col_num, col_width, row_height, loc="center")
             else:
-                if datetime.date(current_year, current_month, day) in checkins:
-                    checkin_mark = "✓"
-                else:
-                    checkin_mark = ""
+                checkin_info = next(
+                    (
+                        (date, count)
+                        for (date, count) in checkins
+                        if date == datetime.date(current_year, current_month, day)
+                    ),
+                    None,
+                )
+                # 日期文本
                 cell_text = f"{day}"
                 cell = table.add_cell(
                     row_num,
@@ -81,15 +94,30 @@ async def show_calendar(update: Update, context: CallbackContext) -> None:
                     loc="center",
                     facecolor="white",
                 )
-                if checkin_mark:
+                if checkin_info:
+                    checkin_mark = "✓"
+                    checkin_counts = (
+                        f"x{checkin_info[1]}" if checkin_info[1] > 1 else ""
+                    )
                     plt.text(
                         col_num / 7 + 0.5 / 7,
-                        1 - (row_num / (len(cal) + 1)) - 0.05,
+                        1 - (row_num / (len(cal) + 1)) - 0.08,
                         checkin_mark,
                         ha="center",
                         va="center",
                         fontsize=100,
-                        color="red",
+                        color="green",
+                        fontweight="bold",
+                    )
+                    plt.text(
+                        col_num / 7 + 0.75 / 7,
+                        1 - (row_num / (len(cal) + 1)) - 0.12,
+                        checkin_counts,
+                        ha="center",
+                        va="center",
+                        fontsize=10,
+                        color="green",
+                        fontweight="bold",
                     )
     ax.add_table(table)
 
@@ -97,8 +125,11 @@ async def show_calendar(update: Update, context: CallbackContext) -> None:
     plt.savefig(image_path, bbox_inches="tight", dpi=150)
     user = update.message.from_user
     username = f"@{user.username}" if user.username else user.first_name
+
+    loading_message = await update.message.reply_text("🦌 正在生成您的记录，请稍候...")
     await update.message.reply_photo(
         photo=open(image_path, "rb"),
         caption=f"{username}，这是您{current_year}年{current_month}月的🦌记录！",
     )
+    await loading_message.edit_text("🦌 记录已生成，请查看！")
     os.remove(image_path)
