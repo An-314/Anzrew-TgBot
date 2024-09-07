@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import asyncio
 import matplotlib.pyplot as plt
 from matplotlib.table import Table
 import os
@@ -132,4 +133,16 @@ async def show_calendar(update: Update, context: CallbackContext) -> None:
         caption=f"{username}，这是您{current_year}年{current_month}月的🦌记录！",
     )
     await loading_message.edit_text("🦌 记录已生成，请查看！")
+    await asyncio.sleep(4)
+    await loading_message.delete()
     os.remove(image_path)
+
+
+async def checkin_and_calendar(update: Update, context: CallbackContext) -> None:
+    await checkin(update, context)
+    await show_calendar(update, context)
+
+
+async def cancel_and_calendar(update: Update, context: CallbackContext) -> None:
+    await checkin_cancel(update, context)
+    await show_calendar(update, context)

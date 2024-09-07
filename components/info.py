@@ -3,7 +3,9 @@ from telegram.ext import CallbackContext
 
 
 async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("主人你好！我是小AnZZnA！")
+    await update.message.reply_text(
+        "主人你好！我是小AnZZnA！\n我在 https://github.com/An-314/Anzrew-TgBot 栖息！\n你可以使用 /help 获取帮助！"
+    )
 
 
 async def help_command(update: Update, context: CallbackContext) -> None:
