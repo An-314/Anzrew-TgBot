@@ -9,6 +9,8 @@
 - `/start`：开始对话
 - `/help`：获取帮助
 - `/dick`：生成一个随机的长度
+- `/lu`：记录🦌生活
+- `/lu_calendar`：查看🦌生活日历
 
 ## 使用
 
@@ -22,5 +24,11 @@ conda activate BOT
 运行机器人：
 
 ```bash
-python main.py
+python bot.py
+```
+
+如果希望机器人运行时可以改动代码并实时更新：
+
+```bash
+python auto_reboot.py
 ```
