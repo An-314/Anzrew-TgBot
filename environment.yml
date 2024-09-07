@@ -5,3 +5,5 @@ dependencies:
     - python-telegram-bot
     - python-dotenv
     - numpy
+    - matplitlib
+    - watchdog

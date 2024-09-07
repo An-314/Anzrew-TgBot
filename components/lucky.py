@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 
 
-async def dick(update: Update, context: CallbackContext) -> None:
+async def random_num(update: Update, context: CallbackContext) -> None:
     mean = 14
     variance = 2
     random_value = np.random.normal(mean, np.sqrt(variance))
